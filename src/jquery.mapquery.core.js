@@ -192,7 +192,7 @@ to the map.
     },
     // Creates a new unique ID for a layer
     _createId: function() {
-        return 'mapquery' + this.idCounter++;
+        return 'mapquery-' + this.idCounter++;
     },
     _removeLayer: function(id) {
         // remove id from vectorlayer if it is there list
@@ -362,6 +362,9 @@ $.MapQuery.Layer = function(map, id, options) {
 
     // to bind and trigger jQuery events
     this.events = $({});
+
+    // a list of all features of this layer
+    this.featuresList = {};
 
     // create the actual layer based on the options
     // Returns layer and final options for the layer (for later re-use,
@@ -562,6 +565,193 @@ If no opacity is given, it will return the current opacity.
     },
     one: function() {
         this.events.one.apply(this.events, arguments);
+    },
+/**
+###*layer*.`features([options])`
+_version added 0.2.0_
+####**Description**: get/set the features of a (vector) layer
+
+**options** an object of key-value pairs with options to create one or
+more features
+
+>Returns: [features] (array of MapQuery.Feature)
+
+
+The `.features()` method allows us to attach features to a mapQuery layer
+object. It takes an options object with feature options. To add multiple
+features, create an array of feature options objects. If an options object
+is given, it will return the resulting feature(s). We can also use it to
+retrieve all features currently attached to the layer.
+
+
+     // add an (vector) json layer to the map
+     var jsonlayer = map.layers({type:'json'});
+     // add a feature to the layer
+     jsonlayer.features({geometry: {type: "Point", coordinates: [5.3, 7.4]}});
+     // get all features of a layer (sorted with first added feature at the beginning
+     var features = jsonlayer.features();
+*/
+    features: function(options) {
+        var self = this;
+        switch(arguments.length) {
+        // return all features
+        case 0:
+            return this._allFeatures();
+        // add new feature(s)
+        case 1:
+            if (!$.isArray(options)) {
+                return this._addFeature(options);
+            }
+            else {
+                return $.map(options, function(feature) {
+                    return self._addFeature(feature);
+                });
+            }
+            break;
+        default:
+            throw('wrong argument number');
+        }
+    },
+    // Returns all features sorted by first added one at the beginning
+    _allFeatures: function() {
+        var features = [];
+        $.each(this.featuresList, function(id, feature) {
+            features.push(feature);
+        });
+        // the features that are added later will have an ID with a
+        // higher number
+        var sorted = features.sort(function(a, b) {
+            return parseInt(a.id.split('-')[1]) - parseInt(b.id.split('-')[1]);
+        });
+        return sorted;
+    },
+    _addFeature: function(options) {
+        var id = this.map._createId();
+        var feature = new $.MapQuery.Feature(this, id, options);
+        this.featuresList[id] = feature;
+        this.events.trigger('mqAddFeature', feature);
+        return feature;
+    },
+    _removeFeature: function(id) {
+        this.events.trigger('mqRemoveFeature', id);
+        delete this.featuresList[id];
+        return this;
+    }
+};
+
+/**
+#MapQuery.Feature
+
+The MapQuery.Feature object. It is constructed with a feature options object
+in the layer.`features([options])` function. The Feautre object is refered to
+as _feature_ in the documentation.
+
+TODO vmx 20110905: Support other geometry types than GeoJSON
+options:
+ * geometry: A GeoJSON geometry
+ * properties: Properties for the feature
+*/
+$.MapQuery.Feature = function(layer, id, options) {
+    var self = this;
+
+    // The ID is the
+    this.id = id;
+    this.layer = layer;
+
+    var format = options.format || 'geojson';
+    // to bind and trigger jQuery events
+    //this.events = $({});
+
+//    // XXX vmx 20110905: Different feature types might make sense:
+//    //     (Geo)JSON, KML, WKT
+    var geometry;
+    switch(format.toLowerCase()) {
+    case 'geojson':
+        var GeoJSON = new OpenLayers.Format.GeoJSON();
+        geometry = GeoJSON.parseGeometry(options.geometry);
+        geometry.transform(this.layer.olLayer.projection,
+            this.layer.map.olMap.getProjectionObject());
+        break;
+    case 'kml':
+        throw('not yet implemented');
+        break;
+    default:
+        throw('Feature: Unkown format');
+    }
+    this.olFeature = new OpenLayers.Feature.Vector(geometry,
+        options.properties);
+
+    this.layer.olLayer.addFeatures(this.olFeature);
+};
+
+$.MapQuery.Feature.prototype = {
+/**
+###*feature*.`remove()`
+_version added 0.2.0_
+####**Description**: remove the feature from the layer
+
+>Returns: layer (layer)
+
+
+The `.remove()` method allows us to remove a feature from the layer.
+A `mqRemoveFeature` event will be fired.
+
+     // add a feature to a layer
+     var feature = layer.features({geometry: {type: "Point", coordinates: [5.3, 7.4]}});
+     // remove the feature again
+     feature.remove();
+*/
+    remove: function() {
+        this.layer.olLayer.removeFeatures(this.olFeature);
+        // remove references to this feature that are stored in the
+        // layer object
+        return this.layer._removeFeature(this.id);
+    },
+/**
+###*feature*.`select(exclusive)`
+_version added 0.2.0_
+####**Description**: select a feature
+
+**exclusive** (boolean, default: true) True means that all other features get
+deselectd
+
+>Returns: layer (layer)
+
+
+The `.select()` method allows us to select a feature from the layer.
+A `mqSelectFeature` event will be fired.
+
+     // add a feature to a layer
+     var feature = layer.features({geometry: {type: "Point", coordinates: [5.3, 7.4]}});
+     // select the feature again
+     feature.select();
+*/
+    select: function(exclusive) {
+        if (exclusive===undefined || exclusive===true) {
+            this.layer.map.selectFeatureControl.unselectAll();
+        }
+        this.layer.map.selectFeatureControl.select(this.olFeature);
+    },
+/**
+###*feature*.`unselect()`
+_version added 0.2.0_
+####**Description**: unselect a feature
+
+>Returns: layer (layer)
+
+
+The `.unselect()` method allows us to unselect a feature from the layer.
+A `mqUnselectFeature` event will be fired.
+
+     // add a feature to a layer
+     var feature = layer.features({geometry: {type: "Point", coordinates: [5.3, 7.4]}});
+     // select the feature
+     feature.select();
+     // unselect the feature again
+     feature.unselect();
+*/
+    unselect: function() {
+        this.layer.map.selectFeatureControl.unselect(this.olFeature);
     }
 };
 
@@ -742,24 +932,28 @@ stating which update strategy should be used (default fixed)
                 }
             }
             var protocol;
-            // only use JSONP if we use http(s)
-            if (o.url.match(/^https?:\/\//)!==null &&
-                !$.MapQuery.util.sameOrigin(o.url)) {
-                protocol = 'Script';
-            }
-            else {
-                protocol = 'HTTP';
-            }
 
             var params = {
-                protocol: new OpenLayers.Protocol[protocol]({
-                    url: o.url,
-                    format: new OpenLayers.Format.GeoJSON()
-                }),
                 strategies: strategies,
                 projection: o.projection || 'EPSG:4326',
                 styleMap: o.styleMap
             };
+
+            if (o.url) {
+                // only use JSONP if we use http(s)
+                if (o.url.match(/^https?:\/\//)!==null &&
+                    !$.MapQuery.util.sameOrigin(o.url)) {
+                    protocol = 'Script';
+                }
+                else {
+                    protocol = 'HTTP';
+                }
+                params.protocol = new OpenLayers.Protocol[protocol]({
+                    url: o.url,
+                    format: new OpenLayers.Format.GeoJSON()
+                });
+            };
+
             return {
                 layer: new OpenLayers.Layer.Vector(o.label, params),
                 options: o

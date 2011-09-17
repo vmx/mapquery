@@ -339,4 +339,28 @@ test("Layer events are bound to the map object as well", 2, function() {
         start();
     });
 });
+
+// Tests for features
+/*
+test('Add a feature manually to the layer', function() {
+    var mq = $('#map_events').mapQuery({
+        layers: {
+            type: 'JSON'
+        }
+    }).data('mapQuery');
+
+    var layer = mq.layers()[0];
+    layer.bind('loadend', function(evt, data) {
+        var olLayer = data.object;
+
+        equals(data.object.features, 0, 'No features on the map');
+        layer.features({
+            geometry: {type: 'Point', coordinates: [34.2, 20.4]},
+            properties: {foo: 'bar'}
+        });
+        equals(data.object.features, 1, 'Feature was added to map');
+    });
+
+});
+*/
 })(jQuery);
