@@ -192,7 +192,7 @@ to the map.
     },
     // Creates a new unique ID for a layer
     _createId: function() {
-        return 'mapquery-' + this.idCounter++;
+        return 'mapquery_' + this.idCounter++;
     },
     _removeLayer: function(id) {
         // remove id from vectorlayer if it is there list
@@ -621,7 +621,7 @@ retrieve all features currently attached to the layer.
         // the features that are added later will have an ID with a
         // higher number
         var sorted = features.sort(function(a, b) {
-            return parseInt(a.id.split('-')[1]) - parseInt(b.id.split('-')[1]);
+            return parseInt(a.id.split('_')[1]) - parseInt(b.id.split('_')[1]);
         });
         return sorted;
     },
@@ -901,7 +901,8 @@ stating which update strategy should be used (default fixed)
         json: function(options) {
             var o = $.extend(true, {}, $.fn.mapQuery.defaults.layer.all,
                     $.fn.mapQuery.defaults.layer.vector,
-                    options);
+                options);
+            var foo = $.extend({a: ['b']}, {a: []});
             this.isVector = true;
             var strategies = [];
             for (var i in o.strategies) {
@@ -938,7 +939,7 @@ stating which update strategy should be used (default fixed)
                 projection: o.projection || 'EPSG:4326',
                 styleMap: o.styleMap
             };
-
+/*
             if (o.url) {
                 // only use JSONP if we use http(s)
                 if (o.url.match(/^https?:\/\//)!==null &&
@@ -953,9 +954,10 @@ stating which update strategy should be used (default fixed)
                     format: new OpenLayers.Format.GeoJSON()
                 });
             };
-
+*/
+            var layer = new OpenLayers.Layer.Vector(o.label, params);
             return {
-                layer: new OpenLayers.Layer.Vector(o.label, params),
+                layer: layer,
                 options: o
             };
         },
@@ -1196,7 +1198,7 @@ $.fn.mapQuery.defaults = {
         },
         vector: {
             // options for vector layers
-            strategies: ['fixed']
+            strategies: ['bbox']
         },
         wmts: {
             format: 'image/jpeg',

@@ -4,7 +4,7 @@
 (function($) {
 
 module('mapQuery');
-
+/*
 test("constructor", function() {
     expect(1);
 
@@ -23,9 +23,9 @@ test("create only one instance", function() {
         url: 'http://vmap0.tiles.osgeo.org/wms/vmap0',
         layers: 'basic'
     });
-    equals(map.layersList.mapquery0.id, 'mapquery0', 'Layer was added');
+    equals(map.layersList.mapquery_0.id, 'mapquery_0', 'Layer was added');
     map = $('#map').mapQuery().data('mapQuery');
-    equals(map.layersList.mapquery0.id, 'mapquery0', 'Layers are still there');
+    equals(map.layersList.mapquery_0.id, 'mapquery_0', 'Layers are still there');
 });
 
 test("WMTS layer parses URL correctly", function() {
@@ -37,13 +37,13 @@ test("WMTS layer parses URL correctly", function() {
         label: 'naturalearth',
         url: '../../../demo/data/wmts/1.0.0/NE1_HR_LC_SR_W_DR/default/10m'
     });
-    equals(map.layersList.mapquery0.olLayer.layer, 'NE1_HR_LC_SR_W_DR',
+    equals(map.layersList.mapquery_0.olLayer.layer, 'NE1_HR_LC_SR_W_DR',
            'layer is correct');
-    equals(map.layersList.mapquery0.olLayer.matrixSet, '10m',
+    equals(map.layersList.mapquery_0.olLayer.matrixSet, '10m',
            'matrixSet is correct');
-    equals(map.layersList.mapquery0.olLayer.style, 'default',
+    equals(map.layersList.mapquery_0.olLayer.style, 'default',
            'style is correct');
-    equals(map.layersList.mapquery0.olLayer.url,
+    equals(map.layersList.mapquery_0.olLayer.url,
            '../../../demo/data/wmts', 'url is correct');
 
     map.layers({
@@ -51,7 +51,7 @@ test("WMTS layer parses URL correctly", function() {
         label: 'naturalearth2',
         url: 'http://example.com/wmts/1.0.0/NE1_HR_LC_SR_W_DR/default/10m'
     });
-    equals(map.layersList.mapquery1.olLayer.url,
+    equals(map.layersList.mapquery_1.olLayer.url,
            'http://example.com/wmts', 'Remote URL is parsed correctly');
 
     map.layers({
@@ -59,7 +59,7 @@ test("WMTS layer parses URL correctly", function() {
         label: 'naturalearth3',
         url: 'http://usr:passwd@example.com/wmts/1.0.0/NE1_HR_LC_SR_W_DR/default/10m'
     });
-    equals(map.layersList.mapquery2.olLayer.url,
+    equals(map.layersList.mapquery_2.olLayer.url,
            'http://usr:passwd@example.com/wmts',
            'Remote URL with username and password is parsed correctly');
 });
@@ -74,14 +74,14 @@ test("WMTS layer sets paramters for spherical mercator correctly", function() {
         url: '../../../demo/data/wmts/1.0.0/NE1_HR_LC_SR_W_DR/default/10m',
         sphericalMercator: true
     });
-    equals(map.layersList.mapquery0.olLayer.maxExtent.toString(),
+    equals(map.layersList.mapquery_0.olLayer.maxExtent.toString(),
            '-20037508.3392,-20037508.3392,20037508.3392,20037508.3392',
            'maxExtent was set');
-    equals(map.layersList.mapquery0.olLayer.maxResolution, 156543.0339,
+    equals(map.layersList.mapquery_0.olLayer.maxResolution, 156543.0339,
            'maxResolution was set');
-    equals(map.layersList.mapquery0.olLayer.projection, 'EPSG:900913',
+    equals(map.layersList.mapquery_0.olLayer.projection, 'EPSG:900913',
            'projection was set');
-    equals(map.layersList.mapquery0.olLayer.units, 'm',
+    equals(map.layersList.mapquery_0.olLayer.units, 'm',
            'units was set');
 
     map = $('#map_wmts3').mapQuery().data('mapQuery');
@@ -92,7 +92,7 @@ test("WMTS layer sets paramters for spherical mercator correctly", function() {
         numZoomLevels: 3,
         sphericalMercator: true
     });
-    equals(map.layersList.mapquery0.olLayer.numZoomLevels, 3,
+    equals(map.layersList.mapquery_0.olLayer.numZoomLevels, 3,
            'Number of zoom level is set correctly even if ' +
            '"sphericalMercator" is to true');
 
@@ -107,7 +107,7 @@ test("OSM layer can be created", function() {
         type: 'OSM',
         label: 'OpenStreetMap'
     });
-    ok(map.layersList.mapquery0.olLayer.attribution.indexOf('OpenStreetMap')!==-1,
+    ok(map.layersList.mapquery_0.olLayer.attribution.indexOf('OpenStreetMap')!==-1,
        'OpenStreetMap layer was loaded (attribution is there)');
 });
 test("Google layer can be created (works only with dev-build of openlayers)", function() {
@@ -118,7 +118,7 @@ test("Google layer can be created (works only with dev-build of openlayers)", fu
         type: 'google',
         view: 'road'
     });
-    ok(map.layersList.mapquery0.olLayer.type=='roadmap',
+    ok(map.layersList.mapquery_0.olLayer.type=='roadmap',
        'Google layer was loaded (type is roadmap)');
 });
 test("Bing layer can be created", function() {
@@ -128,7 +128,7 @@ test("Bing layer can be created", function() {
     map.layers({
         type:'bing',view:'satellite',key:'ArAGGPJ16xm0RXRbw27PvYc9Tfuj1k1dUr_gfA5j8QBD6yAYMlsAtF6YkVyiiLGn'
     });
-    ok(map.layersList.mapquery0.olLayer.name=="Bing Aerial",
+    ok(map.layersList.mapquery_0.olLayer.name=="Bing Aerial",
        'Bing layer was loaded (name is Bong Aerial)');
 });
 test("Add layers on initialisation", function() {
@@ -142,7 +142,7 @@ test("Add layers on initialisation", function() {
         }]
     });
     var map = mapDom.data("mapQuery");
-    equals(map.layersList.mapquery0.label, 'naturalearth', 'Layer was added');
+    equals(map.layersList.mapquery_0.label, 'naturalearth', 'Layer was added');
 
     var mapDom2 = $('#map_init2').mapQuery({
         layers: [{
@@ -158,9 +158,9 @@ test("Add layers on initialisation", function() {
         }]
     });
     var map2 = mapDom2.data("mapQuery");
-    equals(map2.layersList.mapquery0.label, 'naturalearth',
+    equals(map2.layersList.mapquery_0.label, 'naturalearth',
            'Layer1 was added');
-    equals(map2.layersList.mapquery1.label, 'World', 'Layer2 was added');
+    equals(map2.layersList.mapquery_1.label, 'World', 'Layer2 was added');
 });
 
 test("Go to a certain position on initialisation", 2, function() {
@@ -251,7 +251,7 @@ test("center works properly (EPSG:900913)", function() {
 
         /* same(center.box, [-21.962936669741, 20.514147330259, 37.753491669741,
                         80.230575669741],
-             'Setting box only (position is right)'); */
+             'Setting box only (position is right)'); * /
         equals((center.position[0] == 7.8952775000002) && (center.position[1] == 50.414584408364), true,
             'Setting box only (position is right)');
 
@@ -339,28 +339,25 @@ test("Layer events are bound to the map object as well", 2, function() {
         start();
     });
 });
-
+*/
 // Tests for features
-/*
+
 test('Add a feature manually to the layer', function() {
-    var mq = $('#map_events').mapQuery({
+    var mq = $('#map_features').mapQuery({
         layers: {
-            type: 'JSON'
+            type: 'JSON',
+            strategy: []
         }
     }).data('mapQuery');
 
     var layer = mq.layers()[0];
-    layer.bind('loadend', function(evt, data) {
-        var olLayer = data.object;
 
-        equals(data.object.features, 0, 'No features on the map');
-        layer.features({
-            geometry: {type: 'Point', coordinates: [34.2, 20.4]},
-            properties: {foo: 'bar'}
-        });
-        equals(data.object.features, 1, 'Feature was added to map');
+    equals(layer.olLayer.features.length, 0, 'No features on the map');
+    layer.features({
+        geometry: {type: 'Point', coordinates: [34.2, 20.4]},
+        properties: {foo: 'bar'}
     });
-
+    equals(layer.olLayer.features.length, 1, 'Feature was added to map');
 });
-*/
+
 })(jQuery);
